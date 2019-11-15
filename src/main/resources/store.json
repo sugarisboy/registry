@@ -1,0 +1,14 @@
+{
+  "workers": [
+    {
+      "first_name": "Nikita",
+      "last_name": "Smirnov",
+      "birthday": "3.8.2000"
+    },
+    {
+      "first_name": "Alexey",
+      "last_name": "Mikhienkov",
+      "birthday": "21.3.2000"
+    }
+  ]
+}
