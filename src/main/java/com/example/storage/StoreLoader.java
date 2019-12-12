@@ -1,8 +1,8 @@
-package com.example.storege;
+package com.example.storage;
 
 import com.example.dao.EducationLevel;
-import com.example.storege.adapters.EducationLevelTypeAdapter;
-import com.example.storege.adapters.LocalDateTypeAdapter;
+import com.example.storage.adapters.EducationLevelTypeAdapter;
+import com.example.storage.adapters.LocalDateTypeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;

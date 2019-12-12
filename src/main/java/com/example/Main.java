@@ -1,22 +1,24 @@
 package com.example;
 
-import com.example.storege.OwnStore;
-import com.example.storege.StoreLoader;
+import com.example.scenes.MainScene;
+import com.example.storage.OwnStore;
+import com.example.storage.StoreLoader;
 import javafx.application.Application;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import lombok.Getter;
 
 public class Main extends Application {
 
+    @Getter
+    private static OwnStore store;
 
     @Override
     public void start(final Stage stage) {
         StoreLoader storeLoader = new StoreLoader();
-        OwnStore ownStore = storeLoader.loadOwnStore();
+        store = storeLoader.loadOwnStore();
 
-        Group root = new Group();
-        Scene scene = new Scene(root, 1280, 720);
+        Scene scene = new MainScene(stage);
 
         stage.setTitle("Регистратура");
         stage.setScene(scene);

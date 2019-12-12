@@ -4,6 +4,7 @@ import lombok.Getter;
 
 public enum  EducationLevel {
 
+    NO_SELECT("Не указано"),
     SCHOOL("Среднее общее"),
     COLLEGE("Среднее профессиональное"),
     BACHELOR("Бакалавр"),
@@ -14,5 +15,13 @@ public enum  EducationLevel {
 
     EducationLevel(String i18n) {
         this.i18n = i18n;
+    }
+
+    public static EducationLevel castFromI18n(String i18n) {
+        for (EducationLevel value : values()) {
+            if (value.getI18n().equalsIgnoreCase(i18n))
+                return value;
+        }
+        return NO_SELECT;
     }
 }

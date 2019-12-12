@@ -1,7 +1,7 @@
-package com.example.storege;
+package com.example.storage;
 
 import com.example.dao.Worker;
-import com.example.storege.store.AppStore;
+import com.example.storage.store.AppStore;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;

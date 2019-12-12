@@ -1,6 +1,6 @@
-package com.example.storege.store;
+package com.example.storage.store;
 
-import com.example.storege.StoreLoader;
+import com.example.storage.StoreLoader;
 import lombok.Getter;
 import lombok.Setter;
 

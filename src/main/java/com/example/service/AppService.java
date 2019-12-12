@@ -2,7 +2,7 @@ package com.example.service;
 
 import com.example.dao.EducationLevel;
 import com.example.dao.Worker;
-import com.example.storege.OwnStore;
+import com.example.storage.OwnStore;
 import lombok.Getter;
 
 import java.util.List;

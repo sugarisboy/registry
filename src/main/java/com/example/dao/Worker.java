@@ -8,6 +8,8 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.Period;
 
+import static com.example.dao.EducationLevel.NO_SELECT;
+
 @Data
 @Builder
 public class Worker {
@@ -34,7 +36,7 @@ public class Worker {
 
     @Expose
     @SerializedName("education")
-    private EducationLevel educationLevel;
+    private EducationLevel educationLevel = NO_SELECT;
 
     public int getAge() {
         if (birthday == null)

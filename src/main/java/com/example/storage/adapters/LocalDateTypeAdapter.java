@@ -1,4 +1,4 @@
-package com.example.storege.adapters;
+package com.example.storage.adapters;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;

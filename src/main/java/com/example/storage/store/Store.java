@@ -1,4 +1,4 @@
-package com.example.storege.store;
+package com.example.storage.store;
 
 import java.io.File;
 
