@@ -1,8 +1,10 @@
 package com.example.scenes;
 
-import com.example.scenes.stages.AddWorkerStage;
+import com.example.Main;
+import com.example.scenes.stages.CreateStage;
 import com.example.scenes.stages.EditStage;
 import com.example.scenes.stages.FindStage;
+import com.example.service.AppService;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -52,7 +54,7 @@ public class AppBar extends MenuBar {
 
         MenuItem addWorkerItem = new MenuItem("Создать");
         addWorkerItem.setOnAction(event ->
-            new AddWorkerStage(primary)
+            new CreateStage(parent)
         );
 
         MenuItem editWorkerItem = new MenuItem("Изменить");
@@ -60,9 +62,20 @@ public class AppBar extends MenuBar {
             new EditStage(parent)
         );
 
+        MenuItem removeWorkerItem = new MenuItem("Удалить");
+        removeWorkerItem.setOnAction(event -> {
+            System.out.println("1");
+                AppService service = Main.getService();
+                parent.getWorkerList().getSelectionModel().getSelectedItems()
+                    .forEach(service::removeWorker);
+                parent.getWorkerList().refresh();
+            }
+        );
+
         menu.getItems().addAll(
             addWorkerItem,
-            editWorkerItem
+            editWorkerItem,
+            removeWorkerItem
         );
 
         return menu;

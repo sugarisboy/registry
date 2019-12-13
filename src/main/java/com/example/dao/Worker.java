@@ -2,8 +2,10 @@ package com.example.dao;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -12,6 +14,8 @@ import static com.example.dao.EducationLevel.NO_SELECT;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Worker {
 
     @Expose

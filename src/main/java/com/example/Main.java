@@ -1,6 +1,7 @@
 package com.example;
 
 import com.example.scenes.MainScene;
+import com.example.service.AppService;
 import com.example.storage.OwnStore;
 import com.example.storage.StoreLoader;
 import javafx.application.Application;
@@ -11,12 +12,13 @@ import lombok.Getter;
 public class Main extends Application {
 
     @Getter
-    private static OwnStore store;
+    private static AppService service;
 
     @Override
     public void start(final Stage stage) {
         StoreLoader storeLoader = new StoreLoader();
-        store = storeLoader.loadOwnStore();
+        OwnStore store = storeLoader.loadOwnStore();
+        service = new AppService(store);
 
         Scene scene = new MainScene(stage);
 

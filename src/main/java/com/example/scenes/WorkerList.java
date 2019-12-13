@@ -16,7 +16,7 @@ import java.time.LocalDate;
 public class WorkerList extends TableView<Worker> {
 
     public WorkerList(MainScene parent) {
-        OwnStore store = Main.getStore();
+        OwnStore store = Main.getService().getOwnStore();
         ObservableList<Worker> workers = FXCollections.observableList(store.getWorkers());
         this.setItems(workers);
         this.getColumns().addAll(

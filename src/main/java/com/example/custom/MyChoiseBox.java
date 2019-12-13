@@ -1,5 +1,6 @@
 package com.example.custom;
 
+import com.example.scenes.stages.StringValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.ChoiceBox;
@@ -7,7 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
 
-public class MyChoiseBox extends VBox {
+public class MyChoiseBox extends VBox implements StringValue {
 
     private ChoiceBox<String> box;
 
