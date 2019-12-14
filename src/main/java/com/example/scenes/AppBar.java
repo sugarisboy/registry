@@ -86,7 +86,7 @@ public class AppBar extends MenuBar {
 
         MenuItem findItem = new MenuItem("Найти");
         findItem.setOnAction(event ->
-            new FindStage(primary)
+            new FindStage(parent)
         );
 
         menu.getItems().add(findItem);

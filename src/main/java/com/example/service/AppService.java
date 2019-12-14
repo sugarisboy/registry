@@ -31,10 +31,11 @@ public class AppService {
 
     }*/
 
-    public List<Worker> findByFilter(EducationLevel education, String department) {
+    public List<Worker> findByFilter(EducationLevel education, String department, int age) {
         return ownStore.getWorkers().stream()
-            .filter(w -> w.getEducationLevel().equals(education))
-            .filter(w -> w.getDepartment().equalsIgnoreCase(department))
+            .filter(w -> education.equals(EducationLevel.NO_SELECT)|| w.getEducationLevel() == null || w.getEducationLevel().equals(education))
+            .filter(w -> department == null || w.getDepartment() == null || w.getDepartment().equalsIgnoreCase(department))
+            .filter(w -> age < 0 || w.getAge() == age)
             .collect(Collectors.toList());
     }
 
