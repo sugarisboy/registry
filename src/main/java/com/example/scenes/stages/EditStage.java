@@ -126,7 +126,6 @@ public class EditStage extends Stage {
             }
         }
 
-        Main.getService().getOwnStore().save();
         parent.getWorkerList().refresh();
         this.close();
     }

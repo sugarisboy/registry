@@ -5,6 +5,7 @@ import com.example.scenes.stages.CreateStage;
 import com.example.scenes.stages.EditStage;
 import com.example.scenes.stages.FindStage;
 import com.example.service.AppService;
+import com.example.storage.OwnStore;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -43,10 +44,43 @@ public class AppBar extends MenuBar {
         this.primary = parent.getPrimary();
         this.parent = parent;
         this.getMenus().addAll(
+            menuFile(),
             menuEdit(),
             menuNavigation(),
             menuHelp()
         );
+    }
+
+    private Menu menuFile() {
+        Menu menu = new Menu("Файл");
+
+        MenuItem addWorkerItem = new MenuItem("Открыть");
+        addWorkerItem.setOnAction(event -> {
+            Main app = Main.getApp();
+            OwnStore ownStore = app.getStoreLoader().loadOwnStore();
+            app.setStore(ownStore);
+        });
+
+        MenuItem editWorkerItem = new MenuItem("Сохранить");
+        editWorkerItem.setOnAction(event -> {
+            Main app = Main.getApp();
+            app.getStore().save();
+        });
+
+        MenuItem removeWorkerItem = new MenuItem("Закрыть");
+        removeWorkerItem.setOnAction(event -> {
+            Main app = Main.getApp();
+            OwnStore ownStore = new OwnStore();
+            app.setStore(ownStore);
+        });
+
+        menu.getItems().addAll(
+            addWorkerItem,
+            editWorkerItem,
+            removeWorkerItem
+        );
+
+        return menu;
     }
 
     private Menu menuEdit() {
@@ -101,7 +135,21 @@ public class AppBar extends MenuBar {
             JOptionPane.showMessageDialog(null, ABOUT_MSG, "О программе", JOptionPane.INFORMATION_MESSAGE)
         );
 
-        menu.getItems().add(aboutItem);
+        MenuItem exitItem = new MenuItem("Выйти");
+        aboutItem.setOnAction(event ->
+            {
+                try {
+                    Main.getApp().stop();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        );
+
+        menu.getItems().addAll(
+            aboutItem,
+            exitItem
+        );
         return menu;
     }
 }
