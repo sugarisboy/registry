@@ -2,10 +2,10 @@ package com.example.scenes.stages;
 
 import com.example.Main;
 import com.example.custom.MyChoiseBox;
-import com.example.custom.MyTextField;
-import com.example.dao.EducationLevel;
-import com.example.dao.Worker;
+import com.example.dao.Doctor;
+import com.example.scenes.CalendarList;
 import com.example.scenes.MainScene;
+import com.example.storage.OwnStore;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
@@ -15,84 +15,52 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import javax.swing.*;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static com.example.dao.EducationLevel.NO_SELECT;
 
 public class FindStage extends Stage {
 
-    protected MainScene parent;
-    protected Worker worker;
+    private MainScene parent;
+    private VBox box;
 
     public FindStage(MainScene parent) {
         this.parent = parent;
-        open();
-    }
 
-    private void open() {
-        VBox box = new VBox();
+        box = new VBox();
 
-        MyTextField fieldAge = new MyTextField("Возраст", "");
-        MyTextField fieldDepartment = new MyTextField("Отдел", "");
-
-        ObservableList<String> educations = FXCollections.observableList(
-            Stream.of(EducationLevel.values())
-                .map(EducationLevel::getI18n)
-                .collect(Collectors.toList())
-        );
-        MyChoiseBox education = new MyChoiseBox("Образование", educations, NO_SELECT.getI18n());
-
-        Button button = new Button("Сохранить");
-        button.setOnAction(event -> {
-            onClick(
-                fieldAge,
-                fieldDepartment,
-                education
-            );
-        });
-
-        box.getChildren().addAll(
-            fieldAge,
-            fieldDepartment,
-            education,
-            button
-        );
-
-        Scene editScene = new Scene(box, 230, 400);
-
-        this.setTitle("Редактирование");
+        Scene editScene = new Scene(box, 400, 300);
+        this.setTitle("Добавление нового врача");
         this.setScene(editScene);
         this.initModality(Modality.WINDOW_MODAL);
         this.initOwner(parent.getPrimary());
         this.setX(parent.getPrimary().getX() + 200);
         this.setY(parent.getPrimary().getY() + 100);
         this.show();
+
+        open();
     }
 
-    protected void onClick(
-        MyTextField fieldAge,
-        MyTextField fieldDepartment,
-        MyChoiseBox education
-    ) {
-        int age = -1;
-        if (!fieldAge.getValue().trim().equals("")) {
-            try {
-                age = Integer.valueOf(fieldAge.getValue());
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Неверный формат возраста!");
-                return;
-            }
+    private void open() {
+        OwnStore store = Main.getApp().getStore();
+        Set<String> collect = store.getDoctors().stream()
+            .map(Doctor::getRole)
+            .collect(Collectors.toSet());
+        ObservableList<String> roles = FXCollections.observableList(new ArrayList<>(collect));
+        if (roles.size() == 0) {
+            JOptionPane.showMessageDialog(null, "Специалисты не найдены!");
+            return;
         }
 
-        String department = fieldDepartment.getValue();
-        EducationLevel level = EducationLevel.castFromI18n(education.getValue());
+        MyChoiseBox choiseBox = new MyChoiseBox("Специальность", roles, roles.get(0));
 
-        List<Worker> collect = Main.getService().findByFilter(level, department, age);
-        ObservableList<Worker> workers = FXCollections.observableList(collect);
+        Button button = new Button("Найти");
+        button.setOnMouseClicked(event -> {
+            CalendarList calendar = new CalendarList(parent, choiseBox.getValue());
+            new SearchResultStage(parent, calendar);
+            this.close();
+        });
 
-        parent.getWorkerList().setItems(workers);
-        this.close();
+        box.getChildren().addAll(choiseBox, button);
     }
 }

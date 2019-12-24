@@ -1,6 +1,5 @@
 package com.example.custom;
 
-import com.example.scenes.stages.StringValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.ChoiceBox;

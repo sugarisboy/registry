@@ -1,47 +1,62 @@
 package com.example.service;
 
-import com.example.dao.EducationLevel;
-import com.example.dao.Worker;
-import com.example.storage.OwnStore;
-import lombok.Getter;
+import com.example.Main;
+import com.example.dao.Doctor;
+import com.example.dao.WorkDay;
+import com.example.dao.WorkTime;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.NoSuchElementException;
 
 public class AppService {
 
-    @Getter
-    private final OwnStore ownStore;
-
-    public AppService(OwnStore ownStore) {
-        this.ownStore = ownStore;
+    public WorkDay getDoctorsByDay(LocalDate date) throws NoSuchElementException {
+        return Main.getApp().getStore().getWorkDays().stream()
+            .filter(d -> d.getDate().equals(date))
+            .findFirst()
+            .get();
     }
 
-    public void addWorker(Worker w) {
-        ownStore.getWorkers().add(w);
-        ownStore.save();
+    public Doctor getDoctorById(Long id) throws NoSuchElementException {
+        return Main.getApp().getStore().getDoctors().stream()
+            .filter(d -> d.getId() == id)
+            .findFirst()
+            .get();
     }
 
-    public void removeWorker(Worker w) {
-        ownStore.getWorkers().remove(w);
-        ownStore.save();
+    public boolean isFree(LocalDate date, String cabinet, boolean isMorning, Doctor doctor) {
+        return getDoctorsByDay(date).getHostDoctors().stream()
+            .filter(i -> i.getDoctorId() != doctor.getId() && i.getCabinet().equalsIgnoreCase(cabinet) && isMorning == i.isMorning())
+            .count() == 0;
     }
 
-    /*public Worker findById(Long id) {
+    public boolean canCreateEntry(LocalDate date, Doctor doctor) {
+        LocalDate temp = date;
+        while (!temp.getDayOfWeek().equals(DayOfWeek.MONDAY))
+            temp = temp.minusDays(1);
 
-    }*/
+        int weekWorkDayCount = 0;
+        for (int i = 0; i < 7; i++) {
+            if (getDoctorsByDay(temp).getHostDoctors().stream()
+                    .filter(d -> d.getDoctorId() == doctor.getId())
+                    .count() != 0
+            ) {
+                weekWorkDayCount++;
+            }
+            temp = temp.plusDays(1);
+        }
 
-    public List<Worker> findByFilter(EducationLevel education, String department, int age) {
-        return ownStore.getWorkers().stream()
-            .filter(w -> education.equals(EducationLevel.NO_SELECT)|| w.getEducationLevel() == null || w.getEducationLevel().equals(education))
-            .filter(w -> department == null || w.getDepartment() == null || w.getDepartment().equalsIgnoreCase(department))
-            .filter(w -> age < 0 || w.getAge() == age)
-            .collect(Collectors.toList());
+        boolean freeDay = getDoctorsByDay(date).getHostDoctors().stream()
+            .filter(i -> i.getDoctorId() == doctor.getId())
+            .count() == 0;
+
+        return freeDay && weekWorkDayCount < 5;
     }
 
-    public List<Worker> findByAge(int minAge, int maxAge) {
-        return ownStore.getWorkers().stream()
-            .filter(w -> w.getAge() <= maxAge && w.getAge() >= minAge)
-            .collect(Collectors.toList());
+    public void removeEntry(LocalDate date, String cabinet, boolean isMorning) {
+        List<WorkTime> hostDoctors = getDoctorsByDay(date).getHostDoctors();
+        hostDoctors.removeIf(i -> i.getCabinet().equalsIgnoreCase(cabinet) && i.isMorning() == isMorning);
     }
 }

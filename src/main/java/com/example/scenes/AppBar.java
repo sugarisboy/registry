@@ -2,9 +2,8 @@ package com.example.scenes;
 
 import com.example.Main;
 import com.example.scenes.stages.CreateStage;
-import com.example.scenes.stages.EditStage;
+import com.example.scenes.stages.EditDoctorStage;
 import com.example.scenes.stages.FindStage;
-import com.example.service.AppService;
 import com.example.storage.OwnStore;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -15,30 +14,11 @@ import javax.swing.*;
 
 public class AppBar extends MenuBar {
 
-    private static final String ABOUT_MSG =
-        "" +
-            "Написать программу, работающую с информацией " +
-            "\n о служащих учреждения. Данные об отдельном " +
-            "\n работнике состоят из имени, фамилии, отчества, " +
-            "\n даты рождения, образования, должности и " +
-            "\n названия отдела." +
-            "\n " +
-            "\n Главное окно приложения должно содержать " +
-            "\n список людей, отвечающий условиям, которые " +
-            "\n определяются в меню." +
-            "\n " +
-            "\n Главное меню должно " +
-            "\n содержать пункты для создания, изменения и " +
-            "\n отображения данных: чтение данных из файла, сохранение " +
-            "\n данных в файл, редактирование информации о служащем, " +
-            "\n добавление информации о служащем, вывод " +
-            "\n списка работников с заданным образованием, вывод " +
-            "\n списка работников заданного возраста, вывод списка " +
-            "\n работников заданного отдела,а также вывод " +
-            "\n информации о самойпрограмме(пунктменю «О программе»).";
+    private static final String ABOUT_MSG = "Самая лучшая программа.\n\nBy Mihienkhov Alexey!";
 
     private Stage primary;
     private MainScene parent;
+    private Menu sub;
 
     public AppBar(MainScene parent) {
         this.primary = parent.getPrimary();
@@ -86,30 +66,22 @@ public class AppBar extends MenuBar {
     private Menu menuEdit() {
         Menu menu = new Menu("Редактирование");
 
-        MenuItem addWorkerItem = new MenuItem("Создать");
-        addWorkerItem.setOnAction(event ->
+        MenuItem addDoctorItem = new MenuItem("Создать врача");
+        addDoctorItem.setOnAction(event ->
             new CreateStage(parent)
         );
 
-        MenuItem editWorkerItem = new MenuItem("Изменить");
-        editWorkerItem.setOnAction(event ->
-            new EditStage(parent)
-        );
-
-        MenuItem removeWorkerItem = new MenuItem("Удалить");
-        removeWorkerItem.setOnAction(event -> {
-            System.out.println("1");
-                AppService service = Main.getService();
-                parent.getWorkerList().getSelectionModel().getSelectedItems()
-                    .forEach(service::removeWorker);
-                parent.getWorkerList().refresh();
-            }
-        );
+        sub = new Menu("Редактирование врачей");
+        Main.getApp().getStore().getDoctors().forEach(doctor -> {
+            MenuItem item = new MenuItem(
+                doctor.getId() + " " + doctor.getLastName() + " " + doctor.getFirstName() + " " + doctor.getPatronymic());
+            item.setOnAction(event -> new EditDoctorStage(parent, doctor));
+            sub.getItems().add(item);
+        });
 
         menu.getItems().addAll(
-            addWorkerItem,
-            editWorkerItem,
-            removeWorkerItem
+            addDoctorItem,
+            sub
         );
 
         return menu;
@@ -151,5 +123,15 @@ public class AppBar extends MenuBar {
             exitItem
         );
         return menu;
+    }
+
+    public void updateSub() {
+        sub.getItems().clear();
+        Main.getApp().getStore().getDoctors().forEach(doctor -> {
+            MenuItem item = new MenuItem(
+                doctor.getId() + " " + doctor.getLastName() + " " + doctor.getFirstName() + " " + doctor.getPatronymic());
+            item.setOnAction(event -> new EditDoctorStage(parent, doctor));
+            sub.getItems().add(item);
+        });
     }
 }

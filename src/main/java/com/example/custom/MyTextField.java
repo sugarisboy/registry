@@ -1,6 +1,5 @@
 package com.example.custom;
 
-import com.example.scenes.stages.StringValue;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -23,6 +22,6 @@ public class MyTextField extends VBox implements StringValue {
     }
 
     public String getValue() {
-        return field.getText();
+        return field.getText().trim();
     }
 }

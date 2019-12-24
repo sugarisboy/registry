@@ -12,21 +12,24 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import javax.print.Doc;
 import javax.swing.*;
 import java.util.OptionalLong;
 
 
-public class CreateStage extends Stage {
+public class EditDoctorStage extends Stage {
 
     private MainScene parent;
+    private Doctor doctor;
     private VBox box;
 
-    public CreateStage(MainScene parent) {
+    public EditDoctorStage(MainScene parent, Doctor doctor) {
         this.parent = parent;
+        this.doctor = doctor;
 
         box = new VBox();
 
-        Scene editScene = new Scene(box, 400, 220);
+        Scene editScene = new Scene(box, 400, 300);
         this.setTitle("Добавление нового врача");
         this.setScene(editScene);
         this.initModality(Modality.WINDOW_MODAL);
@@ -39,10 +42,10 @@ public class CreateStage extends Stage {
     }
 
     private void open() {
-        MyTextField name1Field = new MyTextField("Имя", "");
-        MyTextField name2Field = new MyTextField("Фамилия", "");
-        MyTextField name3Field = new MyTextField("Отчество", "");
-        MyTextField roleField = new MyTextField("Специальность", "");
+        MyTextField name1Field = new MyTextField("Имя", doctor.getFirstName());
+        MyTextField name2Field = new MyTextField("Фамилия", doctor.getLastName());
+        MyTextField name3Field = new MyTextField("Отчество", doctor.getPatronymic());
+        MyTextField roleField = new MyTextField("Специальность", doctor.getRole());
 
         Button ok = new Button("Сохранить");
         ok.setOnMouseClicked(event -> {
@@ -51,18 +54,19 @@ public class CreateStage extends Stage {
                 return;
             }
 
-            OwnStore store = Main.getApp().getStore();
-            OptionalLong maxId = store.getDoctors().stream().mapToLong(Doctor::getId).max();
-            long id = maxId.isPresent() ? maxId.getAsLong() : 1;
-
-            Doctor doctor = new Doctor();
-            doctor.setId(id);
             doctor.setFirstName(name1Field.getValue());
             doctor.setLastName(name2Field.getValue());
             doctor.setPatronymic(name3Field.getValue());
             doctor.setRole(roleField.getValue());
 
-            store.getDoctors().add(doctor);
+            Main.getApp().setStore(Main.getApp().getStore());
+            this.close();
+        });
+
+        Button del = new Button("Удалить");
+        del.setOnMouseClicked(event -> {
+            Main.getApp().getStore().getDoctors().remove(doctor);
+            Main.getApp().setStore(Main.getApp().getStore());
             this.close();
         });
 
@@ -71,7 +75,8 @@ public class CreateStage extends Stage {
             name2Field,
             name3Field,
             roleField,
-            ok
+            ok,
+            del
         );
     }
 

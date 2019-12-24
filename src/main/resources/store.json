@@ -1,14 +1,74 @@
 {
-  "workers": [
+  "doctors": [
     {
-      "first_name": "Nikita",
-      "last_name": "Smirnov",
-      "birthday": "3.8.2000"
+      "id": 1,
+      "first_name": "Никита",
+      "last_name": "Смирнов",
+      "patronymic": "Александрович",
+      "role": "Терапевт"
     },
     {
-      "first_name": "Alexey",
-      "last_name": "Mikhienkov",
-      "birthday": "21.3.2000"
+      "id": 2,
+      "first_name": "Алексей",
+      "last_name": "Власов",
+      "patronymic": "Вальерьевич",
+      "role": "Терапевт"
+    },
+    {
+      "id": 3,
+      "first_name": "Надежда",
+      "last_name": "Семенова",
+      "patronymic": "Олеговна",
+      "role": "Онколог"
+    },
+    {
+      "id": 4,
+      "first_name": "Алексей",
+      "last_name": "Хентов",
+      "patronymic": "Александрович",
+      "role": "Хирург"
+    }
+  ],
+  "days": [
+    {
+      "date": "25.12.2019",
+      "work_time": [
+        {
+          "doctor_id": 1,
+          "morning": true,
+          "cabinet": "214"
+        },
+        {
+          "doctor_id": 2,
+          "morning": false,
+          "cabinet": "214"
+        },
+        {
+          "doctor_id": 3,
+          "morning": false,
+          "cabinet": "312"
+        }
+      ]
+    },
+    {
+      "date": "26.12.2019",
+      "work_time": [
+        {
+          "doctor_id": 2,
+          "morning": true,
+          "cabinet": "214"
+        },
+        {
+          "doctor_id": 1,
+          "morning": false,
+          "cabinet": "214"
+        },
+        {
+          "doctor_id": 4,
+          "morning": false,
+          "cabinet": "312"
+        }
+      ]
     }
   ]
 }

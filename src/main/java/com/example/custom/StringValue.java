@@ -1,4 +1,4 @@
-package com.example.scenes.stages;
+package com.example.custom;
 
 public interface StringValue {
 

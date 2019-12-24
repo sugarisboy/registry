@@ -3,139 +3,96 @@ package com.example.scenes.stages;
 import com.example.Main;
 import com.example.custom.MyChoiseBox;
 import com.example.custom.MyTextField;
-import com.example.dao.EducationLevel;
-import com.example.dao.Worker;
+import com.example.dao.Doctor;
+import com.example.dao.WorkDay;
+import com.example.dao.WorkTime;
 import com.example.scenes.MainScene;
+import com.example.service.AppService;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import javax.swing.*;
-import java.time.LocalDate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static com.example.dao.EducationLevel.NO_SELECT;
+import java.util.Arrays;
+import java.util.Optional;
 
 public class EditStage extends Stage {
 
-    protected MainScene parent;
-    protected Worker worker;
+    private VBox box;
+    private MainScene parent;
+    private WorkDay day;
+    private Doctor doctor;
 
-    public EditStage(MainScene parent) {
+    public EditStage(MainScene parent, WorkDay day, Doctor doctor) {
         this.parent = parent;
+        this.day = day;
+        this.doctor = doctor;
 
-        if (isCanOpen()) {
-            open();
-        } else {
-            error();
-        }
-    }
+        box = new VBox();
 
-    private void open() {
-        VBox box = new VBox();
-
-        MyTextField fieldName = new MyTextField("Имя", worker.getFirstName());
-        MyTextField fieldLastName = new MyTextField("Фамилия", worker.getLastName());
-        MyTextField fieldRole = new MyTextField("Должность", worker.getRole());
-        MyTextField fieldDepartment = new MyTextField("Отдел", worker.getDepartment());
-        MyTextField fieldBirthday = new MyTextField("Дата рождения", worker.getBirthday().toString());
-
-        ObservableList<String> educations = FXCollections.observableList(
-            Stream.of(EducationLevel.values())
-                .map(EducationLevel::getI18n)
-                .collect(Collectors.toList())
-        );
-
-        EducationLevel level = worker.getEducationLevel() == null ? NO_SELECT : worker.getEducationLevel();
-        MyChoiseBox education = new MyChoiseBox("Образование", educations, level.getI18n());
-
-        Button button = new Button("Сохранить");
-        button.setOnAction(event -> {
-            onClick(
-                fieldName,
-                fieldLastName,
-                fieldRole,
-                fieldDepartment,
-                fieldBirthday,
-                education
-            );
-        });
-
-        box.getChildren().addAll(
-            fieldName,
-            fieldLastName,
-            fieldRole,
-            fieldDepartment,
-            fieldBirthday,
-            education,
-            button
-        );
-
-        Scene editScene = new Scene(box, 230, 400);
-
-        this.setTitle("Редактирование");
+        Scene editScene = new Scene(box, 400, 220);
+        this.setTitle(day.getDate().toString() + ": " + doctor.getLastName());
         this.setScene(editScene);
         this.initModality(Modality.WINDOW_MODAL);
         this.initOwner(parent.getPrimary());
         this.setX(parent.getPrimary().getX() + 200);
         this.setY(parent.getPrimary().getY() + 100);
         this.show();
+
+        open();
     }
 
-    private void error() {
-        JOptionPane.showMessageDialog(null,
-            "Необходимовы выбрать 1 рабочего.", "Ошибка",
-            JOptionPane.ERROR_MESSAGE);
-    }
-
-    protected void onClick(
-        MyTextField fieldName,
-        MyTextField fieldLastName,
-        MyTextField fieldRole,
-        MyTextField fieldDepartment,
-        MyTextField fieldBirthday,
-        MyChoiseBox education
-    ) {
-        worker.setFirstName(fieldName.getValue());
-        worker.setLastName(fieldLastName.getValue());
-        worker.setRole(fieldRole.getValue());
-        worker.setDepartment(fieldDepartment.getValue());
-
-        EducationLevel newEducation = EducationLevel.castFromI18n(education.getValue());
-        worker.setEducationLevel(newEducation);
-
-        String[] dates = fieldBirthday.getValue().split("-");
-        if (dates.length != 3) {
-            JOptionPane.showMessageDialog(null, "Неверый формат даты");
-        } else {
-            try {
-                int year = Integer.valueOf(dates[0]);
-                int month = Integer.valueOf(dates[1]);
-                int day = Integer.valueOf(dates[2]);
-
-                LocalDate newBirthday = LocalDate.of(year, month, day);
-                worker.setBirthday(newBirthday);
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Неверый формат даты");
-            }
+    public void open() {
+        AppService service = Main.getService();
+        Optional<WorkTime> optionalWorkTIme = service.getDoctorsByDay(day.getDate()).getHostDoctors().stream()
+            .filter(i -> i.getDoctorId() == doctor.getId())
+            .findFirst();
+        if (!optionalWorkTIme.isPresent()) {
+            JOptionPane.showMessageDialog(null, "Неизвестная ошибка");
         }
 
-        parent.getWorkerList().refresh();
-        this.close();
-    }
+        WorkTime workTime = optionalWorkTIme.get();
 
-    protected boolean isCanOpen() {
-        TableView.TableViewSelectionModel<Worker> selectionModel = parent.getWorkerList().getSelectionModel();
-        ObservableList<Worker> selectedItems = selectionModel.getSelectedItems();
-        boolean result = selectedItems.size() == 1;
-        if (result)
-            this.worker = selectedItems.get(0);
-        return result;
+        String cabinet = workTime.getCabinet();
+        boolean isMorning = workTime.isMorning();
+
+        MyTextField cabinetField = new MyTextField("Кабинет", cabinet);
+        MyChoiseBox morningBox = new MyChoiseBox(
+            "Время приема",
+            FXCollections.observableList(Arrays.asList("Утро", "Вечер")),
+            isMorning ? "Утро" : "Вечер"
+        );
+
+        Button buttonEdit = new Button("Сохранить");
+        buttonEdit.setOnMouseClicked(event -> {
+            String _cabinet = cabinetField.getValue();
+            boolean _isMorning = morningBox.getValue().equalsIgnoreCase("Утро");
+            if (service.isFree(day.getDate(), _cabinet, _isMorning, doctor)) {
+                workTime.setCabinet(_cabinet);
+                workTime.setMorning(_isMorning);
+                parent.displayCalendar(Main.getApp().getStore());
+                this.close();
+            } else {
+                JOptionPane.showMessageDialog(null, "Это время занято");
+            }
+        });
+
+        Button buttonDelete = new Button("Удалить запись");
+        buttonDelete.setOnMouseClicked(event -> {
+            service.removeEntry(day.getDate(), cabinet, isMorning);
+            parent.displayCalendar(Main.getApp().getStore());
+            this.close();
+        });
+
+        box.getChildren().addAll(
+            cabinetField,
+            morningBox,
+            buttonEdit,
+            buttonDelete
+        );
     }
 }

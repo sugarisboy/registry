@@ -34,7 +34,7 @@ public class Main extends Application {
         this.storeLoader = new StoreLoader();
         this.store = new OwnStore();
 
-        service = new AppService(store);
+        service = new AppService();
 
         mainScene = new MainScene(stage);
 
@@ -45,7 +45,8 @@ public class Main extends Application {
 
     public void setStore(OwnStore store) {
         this.store = store;
-        mainScene.getWorkerList().setItems(FXCollections.observableList(store.getWorkers()));
+        mainScene.displayCalendar(store);
+        mainScene.getAppBar().updateSub();
     }
 
     public static void main(String[] args) { launch(args); }

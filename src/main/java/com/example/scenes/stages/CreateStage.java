@@ -1,98 +1,81 @@
 package com.example.scenes.stages;
 
 import com.example.Main;
-import com.example.custom.MyChoiseBox;
 import com.example.custom.MyTextField;
-import com.example.dao.EducationLevel;
-import com.example.dao.Worker;
+import com.example.custom.StringValue;
+import com.example.dao.Doctor;
 import com.example.scenes.MainScene;
+import com.example.storage.OwnStore;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import javax.swing.*;
-import java.time.DateTimeException;
-import java.time.LocalDate;
+import java.util.OptionalLong;
 
-public class CreateStage extends EditStage {
+
+public class CreateStage extends Stage {
+
+    private MainScene parent;
+    private VBox box;
 
     public CreateStage(MainScene parent) {
-        super(parent);
+        this.parent = parent;
+
+        box = new VBox();
+
+        Scene editScene = new Scene(box, 400, 300);
+        this.setTitle("Добавление нового врача");
+        this.setScene(editScene);
+        this.initModality(Modality.WINDOW_MODAL);
+        this.initOwner(parent.getPrimary());
+        this.setX(parent.getPrimary().getX() + 200);
+        this.setY(parent.getPrimary().getY() + 100);
+        this.show();
+
+        open();
     }
 
-    @Override
-    protected boolean isCanOpen() {
-        this.worker = Worker.builder()
-            .firstName("")
-            .lastName("")
-            .department("")
-            .role("")
-            .birthday(LocalDate.of(1970, 1, 1))
-            .educationLevel(EducationLevel.NO_SELECT)
-            .build();
-        return true;
-    }
+    private void open() {
+        MyTextField name1Field = new MyTextField("Имя", "");
+        MyTextField name2Field = new MyTextField("Фамилия", "");
+        MyTextField name3Field = new MyTextField("Отчество", "");
+        MyTextField roleField = new MyTextField("Специальность", "");
 
-    @Override
-    protected void onClick(
-        MyTextField fieldName,
-        MyTextField fieldLastName,
-        MyTextField fieldRole,
-        MyTextField fieldDepartment,
-        MyTextField fieldBirthday,
-        MyChoiseBox educationField
-    ) {
-        if (isEmpty(fieldName)) {
-            JOptionPane.showMessageDialog(null, "Поле имя не должно быть пустым!");
-        } else if (isEmpty(fieldLastName)) {
-            JOptionPane.showMessageDialog(null, "Поле фамилия не должно быть пустым!");
-        } else if (isEmpty(fieldRole)) {
-            JOptionPane.showMessageDialog(null, "Поле должность не должно быть пустым!");
-        } else if (isEmpty(fieldDepartment)) {
-            JOptionPane.showMessageDialog(null, "Поле отдел не должно быть пустым!");
-        } else if (isEmpty(fieldBirthday)) {
-            JOptionPane.showMessageDialog(null, "Поле день рождения не должно быть пустым!");
-        } else {
-            LocalDate birthday;
-
-            String[] dates = fieldBirthday.getValue()
-                .replace(".", "-")
-                .replace(",", "-")
-                .replace("/", "-")
-                .replace("\\", "-")
-                .split("-");
-
-            if (dates.length != 3) {
-                JOptionPane.showMessageDialog(null, "Неверый формат даты");
+        Button ok = new Button("Сохранить");
+        ok.setOnMouseClicked(event -> {
+            if (isEmpty(name1Field) || isEmpty(name2Field) || isEmpty(name3Field) || isEmpty(roleField)) {
+                JOptionPane.showMessageDialog(null, "Введите все данные.");
                 return;
-            } else {
-                try {
-                    int year = Integer.valueOf(dates[0]);
-                    int month = Integer.valueOf(dates[1]);
-                    int day = Integer.valueOf(dates[2]);
-
-                    birthday = LocalDate.of(year, month, day);
-                    worker.setBirthday(birthday);
-                } catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(null, "Неверый формат даты");
-                    return;
-                } catch (DateTimeException e) {
-                    JOptionPane.showMessageDialog(null, "Неверый формат даты:\n" + e.getMessage());
-                    return;
-                }
             }
 
-            EducationLevel education = EducationLevel.castFromI18n(educationField.getValue());
+            OwnStore store = Main.getApp().getStore();
+            OptionalLong maxId = store.getDoctors().stream().mapToLong(Doctor::getId).max();
+            long id = maxId.isPresent() ? maxId.getAsLong() : 1;
 
-            worker.setFirstName(fieldName.getValue());
-            worker.setLastName(fieldLastName.getValue());
-            worker.setRole(fieldRole.getValue());
-            worker.setDepartment(fieldDepartment.getValue());
-            worker.setBirthday(birthday);
-            worker.setEducationLevel(education);
+            Doctor doctor = new Doctor();
+            doctor.setId(id);
+            doctor.setFirstName(name1Field.getValue());
+            doctor.setLastName(name2Field.getValue());
+            doctor.setPatronymic(name3Field.getValue());
+            doctor.setRole(roleField.getValue());
 
-            Main.getService().addWorker(worker);
-            parent.getWorkerList().refresh();
+            store.getDoctors().add(doctor);
+            Main.getApp().setStore(Main.getApp().getStore());
             this.close();
-        }
+        });
+
+        box.getChildren().addAll(
+            name1Field,
+            name2Field,
+            name3Field,
+            roleField,
+            ok
+        );
     }
+
 
     private boolean isEmpty(StringValue field) {
         return field.getValue().trim().equals("");
